@@ -29,7 +29,7 @@ public class StageScreen implements Screen {
 
     private final SoundWrapper soundWrapper;
     private final BirdSpriteWrapper birdSpriteWrapper;
-    private final BirdSprite birdSprite;
+    private final BirdSprite birdSprite; // don't dispose, handled by birdSpriteWrapper.dispose()
     private final PipeSprite pipeSprite;
     private final DigitSpriteWriter digitSpriteWriter;
 
