@@ -182,11 +182,11 @@ public class TheWorld {
         private final Array<Rectangle> pipeUpRects;
         private final Array<Rectangle> pipeDownRects;
 
-        public MovingObjects() {
+        private MovingObjects() {
             this(null, new Array<Rectangle>(), new Array<Rectangle>());
         }
 
-        public MovingObjects(Rectangle birdRect, Array<Rectangle> pipeUpRects, Array<Rectangle> pipeDownRects) {
+        private MovingObjects(Rectangle birdRect, Array<Rectangle> pipeUpRects, Array<Rectangle> pipeDownRects) {
             this.birdRect = birdRect;
             this.pipeUpRects = pipeUpRects;
             this.pipeDownRects = pipeDownRects;
