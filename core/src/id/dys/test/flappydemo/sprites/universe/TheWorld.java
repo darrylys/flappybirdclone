@@ -31,6 +31,7 @@ public class TheWorld {
     private final Array<Rectangle> pipeUpRects;
     private final Array<Rectangle> pipeDownRects;
     private final Array<Rectangle> coins;
+    private final int birdSpriteIdx;
 
     public TheWorld(FlappyDemo game) {
         this(game, new MovingObjects());
@@ -43,7 +44,13 @@ public class TheWorld {
         coin = new Texture(Gdx.files.internal("coin.png"));
 
         birdSpriteWrapper = new BirdSpriteWrapper();
-        birdSprite = birdSpriteWrapper.getRandom();
+        if (obj.birdSpriteIdx == null) {
+            birdSpriteIdx = birdSpriteWrapper.getRandomIndex();
+        } else {
+            birdSpriteIdx = obj.birdSpriteIdx;
+        }
+        birdSprite = birdSpriteWrapper.get(birdSpriteIdx);
+
         pipeSprite = new PipeSprite();
         digitSpriteWriter = new DigitSpriteWriter();
 
@@ -206,7 +213,7 @@ public class TheWorld {
     }
 
     public MovingObjects get() {
-        return new MovingObjects(birdRect, pipeUpRects, pipeDownRects, coins);
+        return new MovingObjects(birdRect, pipeUpRects, pipeDownRects, coins, birdSpriteIdx);
     }
 
     public void dispose() {
@@ -223,17 +230,20 @@ public class TheWorld {
         private final Array<Rectangle> pipeUpRects;
         private final Array<Rectangle> pipeDownRects;
         private final Array<Rectangle> coins;
+        private final Integer birdSpriteIdx;
 
         private MovingObjects() {
-            this(null, new Array<Rectangle>(), new Array<Rectangle>(), new Array<Rectangle>());
+            this(null, new Array<Rectangle>(), new Array<Rectangle>(),
+                    new Array<Rectangle>(), null);
         }
 
         private MovingObjects(Rectangle birdRect, Array<Rectangle> pipeUpRects,
-                              Array<Rectangle> pipeDownRects, Array<Rectangle> coins) {
+                              Array<Rectangle> pipeDownRects, Array<Rectangle> coins, Integer birdSpriteIdx) {
             this.birdRect = birdRect;
             this.pipeUpRects = pipeUpRects;
             this.pipeDownRects = pipeDownRects;
             this.coins = coins;
+            this.birdSpriteIdx = birdSpriteIdx;
         }
     }
 

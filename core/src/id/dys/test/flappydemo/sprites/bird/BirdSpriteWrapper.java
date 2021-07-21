@@ -14,8 +14,12 @@ public class BirdSpriteWrapper {
         sprites[2] = new BirdSprite("yellowbird");
     }
 
-    public BirdSprite getRandom() {
-        return sprites[random.nextInt(sprites.length)];
+    public BirdSprite get(int i) {
+        return sprites[i];
+    }
+
+    public int getRandomIndex() {
+        return random.nextInt(sprites.length);
     }
 
     public void dispose() {
