@@ -20,6 +20,7 @@ public class TheWorld {
 
     private final Texture bgDay;
     private final Texture bgBase;
+    private final Texture coin;
 
     private final BirdSpriteWrapper birdSpriteWrapper;
     private final BirdSprite birdSprite; // don't dispose, handled by birdSpriteWrapper.dispose()
@@ -29,6 +30,7 @@ public class TheWorld {
     private final Rectangle birdRect;
     private final Array<Rectangle> pipeUpRects;
     private final Array<Rectangle> pipeDownRects;
+    private final Array<Rectangle> coins;
 
     public TheWorld(FlappyDemo game) {
         this(game, new MovingObjects());
@@ -38,6 +40,7 @@ public class TheWorld {
         this.game = game;
         bgDay = new Texture(Gdx.files.internal("background_day.png"));
         bgBase = new Texture(Gdx.files.internal("base.png"));
+        coin = new Texture(Gdx.files.internal("coin.png"));
 
         birdSpriteWrapper = new BirdSpriteWrapper();
         birdSprite = birdSpriteWrapper.getRandom();
@@ -51,6 +54,7 @@ public class TheWorld {
         }
         this.pipeUpRects = obj.pipeUpRects;
         this.pipeDownRects = obj.pipeDownRects;
+        this.coins = obj.coins;
     }
 
     private Rectangle createBirdRect() {
@@ -83,6 +87,11 @@ public class TheWorld {
     public void spawnPipe(int pipeDownHeight, int pipeGap) {
         spawnDownPipe(pipeDownHeight);
         spawnUpPipe(pipeDownHeight + pipeGap);
+    }
+
+    public void spawnCoin(float y) {
+        Rectangle r = new Rectangle(GameConstants.SCREEN_W, y, GameConstants.COIN_W, GameConstants.COIN_H);
+        coins.add(r);
     }
 
     public int getBaseHeight() {
@@ -119,6 +128,9 @@ public class TheWorld {
         for (Rectangle r : pipeDownRects) {
             pipeSprite.drawDownPipe(game.getBatch(), r.x, r.y);
         }
+        for (Rectangle r : coins) {
+            game.getBatch().draw(coin, r.x, r.y);
+        }
         game.getBatch().draw(bgBase, 0, 0);
         digitSpriteWriter.drawCenteredAtHeight(game.getBatch(), "" + score, GameConstants.SCORE_Y);
 
@@ -129,23 +141,30 @@ public class TheWorld {
         movePipe(pipeUpRects, timeDelta, dx);
     }
 
+    public void moveCoinsByDx(float timeDelta, float dx) {
+        movePipe(coins, timeDelta, dx);
+    }
+
     private void movePipe(Array<Rectangle> pipes, float delta, float dx) {
         for (Rectangle r : pipes) {
             r.x += dx * delta;
         }
     }
 
-    public int countBirdPipeOverlaps() {
-        return checkBirdOverlapsWithPipe(pipeDownRects) + checkBirdOverlapsWithPipe(pipeUpRects);
+    public int countBirdPipeOverlaps(boolean removePipeIfHits) {
+        return checkBirdOverlapsWithPipe(pipeDownRects, removePipeIfHits) +
+                checkBirdOverlapsWithPipe(pipeUpRects, removePipeIfHits);
     }
 
-    private int checkBirdOverlapsWithPipe(Array<Rectangle> pipes) {
+    private int checkBirdOverlapsWithPipe(Array<Rectangle> pipes, boolean removePipeIfHits) {
         int count = 0;
         for (Iterator<Rectangle> iter = pipes.iterator(); iter.hasNext();) {
             Rectangle r = iter.next();
             if (birdRect.overlaps(r)) {
                 count++;
-                iter.remove();
+                if (removePipeIfHits) {
+                    iter.remove();
+                }
             }
         }
         return count;
@@ -165,8 +184,29 @@ public class TheWorld {
         }
     }
 
+    public void removeCoinIfExitingScreen() {
+        for (Iterator<Rectangle> iter = coins.iterator(); iter.hasNext();) {
+            Rectangle r = iter.next();
+            if (r.x + GameConstants.COIN_W < 0) {
+                iter.remove();
+            }
+        }
+    }
+
+    public int checkBirdHitCoinAndRemoveItIfTrue() {
+        int hits = 0;
+        for (Iterator<Rectangle> iter = coins.iterator(); iter.hasNext();) {
+            Rectangle r = iter.next();
+            if (birdRect.overlaps(r)) {
+                hits++;
+                iter.remove();
+            }
+        }
+        return hits;
+    }
+
     public MovingObjects get() {
-        return new MovingObjects(birdRect, pipeUpRects, pipeDownRects);
+        return new MovingObjects(birdRect, pipeUpRects, pipeDownRects, coins);
     }
 
     public void dispose() {
@@ -175,21 +215,25 @@ public class TheWorld {
         birdSpriteWrapper.dispose();
         pipeSprite.dispose();
         digitSpriteWriter.dispose();
+        coin.dispose();
     }
 
     public static class MovingObjects {
         private final Rectangle birdRect;
         private final Array<Rectangle> pipeUpRects;
         private final Array<Rectangle> pipeDownRects;
+        private final Array<Rectangle> coins;
 
         private MovingObjects() {
-            this(null, new Array<Rectangle>(), new Array<Rectangle>());
+            this(null, new Array<Rectangle>(), new Array<Rectangle>(), new Array<Rectangle>());
         }
 
-        private MovingObjects(Rectangle birdRect, Array<Rectangle> pipeUpRects, Array<Rectangle> pipeDownRects) {
+        private MovingObjects(Rectangle birdRect, Array<Rectangle> pipeUpRects,
+                              Array<Rectangle> pipeDownRects, Array<Rectangle> coins) {
             this.birdRect = birdRect;
             this.pipeUpRects = pipeUpRects;
             this.pipeDownRects = pipeDownRects;
+            this.coins = coins;
         }
     }
 

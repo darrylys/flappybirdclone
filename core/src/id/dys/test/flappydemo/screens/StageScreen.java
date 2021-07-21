@@ -22,8 +22,9 @@ public class StageScreen implements Screen {
     private final OrthographicCamera camera;
 
     private long lastPipeSpawn;
+    private long lastCoinSpawn;
 
-    private int birdHitsPipeCount = 0;
+    private int playerScore = 0;
     private float ySpeed = 0.0f;
 
     public StageScreen(FlappyDemo game) {
@@ -43,6 +44,12 @@ public class StageScreen implements Screen {
         lastPipeSpawn = TimeUtils.nanoTime();
     }
 
+    private void spawnCoin() {
+        int y = MathUtils.random(100, 400);
+        theWorld.spawnCoin(y);
+        lastCoinSpawn = TimeUtils.nanoTime();
+    }
+
     @Override
     public void show() {
 
@@ -55,9 +62,14 @@ public class StageScreen implements Screen {
         game.getBatch().setProjectionMatrix(camera.combined); // ritual code, just copy paste.
         game.getBatch().begin();
 
-        theWorld.draw(birdHitsPipeCount);
+        theWorld.draw(playerScore);
 
         game.getBatch().end();
+    }
+
+    private void gameOver() {
+        game.setScreen(new GameOverScreen(this.game, theWorld.get(), playerScore));
+        dispose();
     }
 
     private void updateGameWorld(float delta) {
@@ -72,8 +84,7 @@ public class StageScreen implements Screen {
         if (theWorld.doesBirdHitGround()) {
             theWorld.setBirdYPositionToFloor();
             ySpeed = 0.0f;
-            game.setScreen(new GameOverScreen(this.game, theWorld.get(), birdHitsPipeCount));
-            dispose();
+            gameOver();
         }
 
         if (theWorld.doesBirdHitCeiling()) {
@@ -81,9 +92,14 @@ public class StageScreen implements Screen {
             ySpeed = 0.0f;
         }
 
-        if (TimeUtils.nanoTime() - lastPipeSpawn > GameConstants.SPAWN_TIME_GAP_IN_NANOS) {
+        long current = TimeUtils.nanoTime();
+        if (current - lastPipeSpawn > GameConstants.SPAWN_TIME_PIPES_GAP_IN_NANOS) {
             spawnPipe();
         }
+        if (current - lastCoinSpawn > GameConstants.SPAWN_TIME_COINS_GAP_IN_NANOS) {
+            spawnCoin();
+        }
+
     }
 
     @Override
@@ -93,10 +109,16 @@ public class StageScreen implements Screen {
         updateGameWorld(delta);
 
         theWorld.movePipesByDx(delta, -GameConstants.PIPE_SPEED_X);
+        theWorld.moveCoinsByDx(delta, -GameConstants.PIPE_SPEED_X);
 
-        birdHitsPipeCount += theWorld.countBirdPipeOverlaps();
+        int birdHitPipe = theWorld.countBirdPipeOverlaps(false);
+        if (birdHitPipe > 0) {
+            gameOver();
+        }
+        playerScore += theWorld.checkBirdHitCoinAndRemoveItIfTrue();
 
         theWorld.removePipeIfExitingScreen();
+        theWorld.removeCoinIfExitingScreen();
 
     }
 
