@@ -144,26 +144,26 @@ public class TheWorld {
     }
 
     public void movePipesByDx(float timeDelta, float dx) {
-        movePipe(pipeDownRects, timeDelta, dx);
-        movePipe(pipeUpRects, timeDelta, dx);
+        moveAlongsideXAxis(pipeDownRects, timeDelta, dx);
+        moveAlongsideXAxis(pipeUpRects, timeDelta, dx);
     }
 
     public void moveCoinsByDx(float timeDelta, float dx) {
-        movePipe(coins, timeDelta, dx);
+        moveAlongsideXAxis(coins, timeDelta, dx);
     }
 
-    private void movePipe(Array<Rectangle> pipes, float delta, float dx) {
-        for (Rectangle r : pipes) {
+    private void moveAlongsideXAxis(Array<Rectangle> obj, float delta, float dx) {
+        for (Rectangle r : obj) {
             r.x += dx * delta;
         }
     }
 
     public int countBirdPipeOverlaps(boolean removePipeIfHits) {
-        return checkBirdOverlapsWithPipe(pipeDownRects, removePipeIfHits) +
-                checkBirdOverlapsWithPipe(pipeUpRects, removePipeIfHits);
+        return checkBirdOverlapsWithObjects(pipeDownRects, removePipeIfHits) +
+                checkBirdOverlapsWithObjects(pipeUpRects, removePipeIfHits);
     }
 
-    private int checkBirdOverlapsWithPipe(Array<Rectangle> pipes, boolean removePipeIfHits) {
+    private int checkBirdOverlapsWithObjects(Array<Rectangle> pipes, boolean removePipeIfHits) {
         int count = 0;
         for (Iterator<Rectangle> iter = pipes.iterator(); iter.hasNext();) {
             Rectangle r = iter.next();
@@ -182,34 +182,25 @@ public class TheWorld {
         removePipeIfExitingScreen(pipeUpRects);
     }
 
-    private void removePipeIfExitingScreen(Array<Rectangle> pipes) {
-        for (Iterator<Rectangle> iter = pipes.iterator(); iter.hasNext();) {
+    private void removeObjectIfExitingScreen(Array<Rectangle> obj, float objWidth) {
+        for (Iterator<Rectangle> iter = obj.iterator(); iter.hasNext();) {
             Rectangle r = iter.next();
-            if (r.x + GameConstants.PIPE_W < 0) {
+            if (r.x + objWidth < 0) {
                 iter.remove();
             }
         }
+    }
+
+    private void removePipeIfExitingScreen(Array<Rectangle> pipes) {
+        removeObjectIfExitingScreen(pipes, GameConstants.PIPE_W);
     }
 
     public void removeCoinIfExitingScreen() {
-        for (Iterator<Rectangle> iter = coins.iterator(); iter.hasNext();) {
-            Rectangle r = iter.next();
-            if (r.x + GameConstants.COIN_W < 0) {
-                iter.remove();
-            }
-        }
+        removeObjectIfExitingScreen(coins, GameConstants.COIN_W);
     }
 
     public int checkBirdHitCoinAndRemoveItIfTrue() {
-        int hits = 0;
-        for (Iterator<Rectangle> iter = coins.iterator(); iter.hasNext();) {
-            Rectangle r = iter.next();
-            if (birdRect.overlaps(r)) {
-                hits++;
-                iter.remove();
-            }
-        }
-        return hits;
+        return checkBirdOverlapsWithObjects(coins, true);
     }
 
     public MovingObjects get() {
