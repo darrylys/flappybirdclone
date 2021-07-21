@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import id.dys.test.flappydemo.screens.StageScreen;
+import id.dys.test.flappydemo.screens.StartScreen;
 
 public class FlappyDemo extends Game {
 	private SpriteBatch batch;
@@ -14,7 +15,7 @@ public class FlappyDemo extends Game {
 	public void create () {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
-		setScreen(new StageScreen(this));
+		setScreen(new StartScreen(this));
 	}
 
 	@Override
