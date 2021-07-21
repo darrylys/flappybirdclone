@@ -82,6 +82,8 @@ public class StartScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        bgBase.dispose();
+        bgDay.dispose();
+        message.dispose();
     }
 }

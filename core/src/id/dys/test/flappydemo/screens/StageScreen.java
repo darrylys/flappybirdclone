@@ -72,6 +72,8 @@ public class StageScreen implements Screen {
         if (theWorld.doesBirdHitGround()) {
             theWorld.setBirdYPositionToFloor();
             ySpeed = 0.0f;
+            game.setScreen(new GameOverScreen(this.game, theWorld.get(), birdHitsPipeCount));
+            dispose();
         }
 
         if (theWorld.doesBirdHitCeiling()) {
