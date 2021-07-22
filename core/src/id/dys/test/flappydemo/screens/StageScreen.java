@@ -26,6 +26,7 @@ public class StageScreen implements Screen {
 
     private int playerScore = 0;
     private float ySpeed = 0.0f;
+    private boolean touched = false;
 
     public StageScreen(FlappyDemo game) {
         this.game = game;
@@ -74,9 +75,15 @@ public class StageScreen implements Screen {
 
     private void updateGameWorld(float delta) {
         if (Gdx.input.isTouched()) {
-            ySpeed = GameConstants.BIRD_INC_SPEED_Y;
+            if (!touched) {
+                ySpeed = GameConstants.BIRD_INC_SPEED_Y;
+                touched = true;
+            } else {
+                ySpeed -= GameConstants.BIRD_GRAVITY;
+            }
         } else {
             ySpeed -= GameConstants.BIRD_GRAVITY;
+            touched = false;
         }
 
         theWorld.incBirdYPositionBy(ySpeed * delta);
