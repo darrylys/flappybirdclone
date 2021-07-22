@@ -3,11 +3,14 @@ package id.dys.test.flappydemo.sprites.bird;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class BirdSprite {
 
+    private static final long FLAP_GAP_NANOS = 350000000;
     private static final int UP = 0, MID = 1, DOWN = 2;
     private int ci, li;
+    private long lastFlapWingsNanos = 0;
 
     private final Texture[] img;
 
@@ -40,8 +43,14 @@ public class BirdSprite {
     }
 
     public void draw(SpriteBatch batch, float x, float y) {
-        int currentRenderIdx = getAndUpdateNextIdx();
-        batch.draw(img[currentRenderIdx], x, y);
+        int flapIdx = ci;
+        long currentNanos = TimeUtils.nanoTime();
+        if (currentNanos - lastFlapWingsNanos >= FLAP_GAP_NANOS) {
+            flapIdx = getAndUpdateNextIdx();
+            lastFlapWingsNanos = currentNanos;
+        }
+
+        batch.draw(img[flapIdx], x, y);
     }
 
     public void dispose() {
